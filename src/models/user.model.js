@@ -1,8 +1,8 @@
-import { Schema, model, models } from "mongoose";
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const UserSchema = new Schema(
+const UserSchema = new mongoose.Schema(
   {
     fullname: {
       type: String,
@@ -42,7 +42,7 @@ const UserSchema = new Schema(
     },
     watchHistory: [
       {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Video",
       },
     ],
@@ -91,4 +91,4 @@ UserSchema.methods.generateRefreshToken = async function () {
   );
 };
 
-export const User = models.User || model("User", UserSchema);
+export const User = mongoose.models.User || mongoose.model("User", UserSchema);
