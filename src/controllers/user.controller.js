@@ -144,7 +144,10 @@ export const logout = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: { refreshToken: "" },
+      // $set: { refreshToken: "" },
+      $unset: {
+        refreshToken: 1, // This removes the field from document
+      },
     }
     // {
     //   new: true, // Returns the updated document
@@ -435,7 +438,7 @@ export const getWatchHistory = asyncHandler(async (req, res) => {
       $match: {
         // Convert id string into an objectId as aggregation directly talks with mongodb without
         // layer of mongoose in between which automatically converts it for us without explicitly telling.
-        _id: new mongoose.Types.ObjectId(req.user_id),
+        _id: new mongoose.Types.ObjectId(req.user?._id),
       },
     },
     {
