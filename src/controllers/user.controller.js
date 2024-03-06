@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/apiError.js";
@@ -412,7 +413,7 @@ export const getChannelprofile = asyncHandler(async (req, res) => {
       },
     },
   ]);
-  
+
   console.log(channel);
 
   if (!channel?.length) {
@@ -424,6 +425,63 @@ export const getChannelprofile = asyncHandler(async (req, res) => {
       statusCode: 200,
       data: { channel: channel[0] },
       message: "Channel retrieved successfully",
+    })
+  );
+});
+
+export const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    {
+      $match: {
+        // Convert id string into an objectId as aggregation directly talks with mongodb without
+        // layer of mongoose in between which automatically converts it for us without explicitly telling.
+        _id: new mongoose.Types.ObjectId(req.user_id),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        // Sub pipelines
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    fullname: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  console.log(user);
+
+  return res.status(200).json(
+    new ApiResponse({
+      statusCode: 200,
+      data: user[0],
+      message: "Watch history fetched successfully",
     })
   );
 });
