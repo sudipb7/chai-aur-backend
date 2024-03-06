@@ -277,7 +277,7 @@ export const updateUser = asyncHandler(async (req, res) => {
 });
 
 export const updateAvatar = asyncHandler(async (req, res) => {
-  const path = req.files?.path;
+  const path = req.file?.path;
 
   if (!path) {
     throw new ApiError(400, "Avatar is required");
@@ -315,7 +315,7 @@ export const updateAvatar = asyncHandler(async (req, res) => {
 });
 
 export const updateCoverImage = asyncHandler(async (req, res) => {
-  const path = req.files?.path;
+  const path = req.file?.path;
 
   if (!path) {
     throw new ApiError(400, "Cover Image is required");
